@@ -54,9 +54,8 @@ class LimpezaDados:
                 lista_dic.append(None)
 
         if data_frame_json:
-            data_frame_json_limpo = self.juntar_json_data_frame(lista_dic, atributo_json, data_frame_atributo)
-            data_frame_json_limpo = self.filtrar_local_casa(data_frame_json_limpo)
-            return data_frame_json_limpo
+            return self.juntar_json_data_frame(lista_dic, atributo_json, data_frame_atributo)
+
         return pd.DataFrame(lista_dic)
 
     def juntar_json_data_frame(self, atributos_juntar:list, atributo_json:str, data_frame_juntar:pd.DataFrame) -> pd.DataFrame:
