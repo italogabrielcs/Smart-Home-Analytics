@@ -54,7 +54,8 @@ class LimpezaDados:
                 lista_dic.append(None)
 
         if data_frame_json:
-            return self.juntar_json_data_frame(lista_dic, atributo_json, data_frame_atributo)
+            df_juntar_json = self.juntar_json_data_frame(lista_dic, atributo_json, data_frame_atributo)
+            return self.filtrar_local_casa(df_juntar_json)
 
         return pd.DataFrame(lista_dic)
 
@@ -69,11 +70,20 @@ class LimpezaDados:
     def classificando_feriado(self, data_feriados:str = "timestamp") -> pd.DataFrame:
         pass 
     
-    def filtrar_local_casa(self, data_frame:pd.DataFrame) -> pd.DataFrame:
 
+    def filtrar_local_casa(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        
         lista_locais_casa = ['sala', 'quarto', 'cozinha', 'banheiro']
+        # use lookarounds para evitar problemas com limites de palavra
+        padrao = r'(?<!\w)(' + '|'.join(lista_locais_casa) + r')(?!\w)'
 
-        padrao = re.compile(r'\b(' + '|'.join(lista_locais_casa) + ')\b', flags=re.IGNORECASE)
+        # garante strings e evita NaN
+        s = data_frame['friendly_name'].fillna('').astype(str)
 
-        for val in data_frame['friendly_name'].items():
-             pass 
+        # extrai a primeira palavra que bate (case-insensitive)
+        encontrados = s.str.extract(padrao, flags=re.IGNORECASE, expand=False)
+
+        # substitui pela palavra encontrada (em lower) quando existir, caso contrário mantém o valor original
+        data_frame['friendly_name'] = encontrados.str.lower().fillna(data_frame['friendly_name'])
+
+        return data_frame
